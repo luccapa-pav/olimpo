@@ -22,7 +22,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     const response = await client.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: 1024,
       system: systemPrompt,
       messages,
@@ -32,7 +32,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     return res.json({ agentId, response: text });
   } catch (err) {
-    console.error('Anthropic API error:', err);
-    return res.status(500).json({ error: 'Internal server error' });
+    const message = err instanceof Error ? err.message : String(err);
+    console.error('Anthropic API error:', message);
+    return res.status(500).json({ error: message });
   }
 }

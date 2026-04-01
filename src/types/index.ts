@@ -17,6 +17,7 @@ export interface AgentConfig {
 export interface AgentState extends AgentConfig {
   status: AgentStatus;
   currentTask: string | null;
+  taskStartedAt: number | null;
 }
 
 export interface ChatMessage {

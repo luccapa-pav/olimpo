@@ -1,52 +1,81 @@
-// Iluminação da cena: ambiente escuro com spots sobre as mesas e LEDs lineares
+import { RectAreaLightUniformsLib } from 'three/examples/jsm/lights/RectAreaLightUniformsLib.js';
+
+RectAreaLightUniformsLib.init();
+
+// ── Máx 8 luzes totais ─────────────────────────────────────────────────────────
+// 1. Ambient
+// 2. Directional (shadow caster)
+// 3. RectArea CEO
+// 4. RectArea Meeting Room
+// 5. RectArea Salas Privadas (cobre ambas com uma luz maior)
+// 6. RectArea Workspace
+// 7. Point golden accent
+// ──────────────────────────────────────────────────────────────────────────────
+
 export function Lighting() {
   return (
     <>
-      {/* Luz ambiente muito baixa — predomina escuridão */}
-      <ambientLight intensity={0.15} color="#1a1a2e" />
+      {/* 1. Ambient */}
+      <ambientLight intensity={1.8} color="#D8E0F0" />
 
-      {/* Luz direcional principal (simula LEDs do teto) */}
+      {/* 2. Directional principal — único com sombra */}
       <directionalLight
-        position={[5, 12, 5]}
+        position={[15, 20, 10]}
         intensity={0.8}
-        color="#E8E8F0"
+        color="#FFFFFF"
         castShadow
-        shadow-mapSize={[2048, 2048]}
-        shadow-camera-far={50}
+        shadow-mapSize-width={512}
+        shadow-mapSize-height={512}
+        shadow-camera-near={1}
+        shadow-camera-far={60}
         shadow-camera-left={-20}
         shadow-camera-right={20}
         shadow-camera-top={20}
         shadow-camera-bottom={-20}
       />
 
-      {/* Luz de preenchimento oposta — evita sombras totalmente negras */}
-      <directionalLight
-        position={[-5, 8, -5]}
-        intensity={0.2}
-        color="#4A90D9"
+      {/* 3. RectArea CEO room */}
+      <rectAreaLight
+        position={[-11, 3.38, -9.5]}
+        rotation={[-Math.PI / 2, 0, 0]}
+        width={4.5}
+        height={3.5}
+        intensity={6}
+        color="#EEF0FF"
       />
 
-      {/* Spot sobre a sala do CEO */}
-      <spotLight
-        position={[-7, 8, 4]}
-        angle={0.4}
-        penumbra={0.6}
-        intensity={1.2}
-        color="#E8E8E8"
-        castShadow
+      {/* 4. RectArea Sala de Reunião */}
+      <rectAreaLight
+        position={[-4.5, 3.38, -9.5]}
+        rotation={[-Math.PI / 2, 0, 0]}
+        width={6}
+        height={3.5}
+        intensity={6}
+        color="#EEF0FF"
       />
 
-      {/* Spots sobre a área de trabalho */}
-      <spotLight
-        position={[3, 8, -3]}
-        angle={0.5}
-        penumbra={0.5}
-        intensity={1.0}
-        color="#E8E8E8"
+      {/* 5. RectArea Salas Privadas — uma luz cobre ambas (Room1 em -12, Room2 em -7) */}
+      <rectAreaLight
+        position={[-9.5, 3.38, -3.5]}
+        rotation={[-Math.PI / 2, 0, 0]}
+        width={9}
+        height={3.5}
+        intensity={6}
+        color="#EEF0FF"
       />
 
-      {/* Luz pontual dourada — acento premium */}
-      <pointLight position={[0, 5, 0]} intensity={0.3} color="#C9A84C" distance={15} />
+      {/* 6. RectArea Workspace */}
+      <rectAreaLight
+        position={[-8, 3.38, 1.5]}
+        rotation={[-Math.PI / 2, 0, 0]}
+        width={12}
+        height={5}
+        intensity={5}
+        color="#EEF0FF"
+      />
+
+      {/* 7. Acento dourado */}
+      <pointLight position={[-2, 3, -6]} intensity={0.8} color="#C9A84C" distance={20} />
     </>
   );
 }

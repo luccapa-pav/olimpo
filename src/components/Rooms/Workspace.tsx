@@ -8,21 +8,21 @@ interface WorkspaceProps {
   onAgentClick: (id: string) => void;
 }
 
-const DESK_SPACING_X = 2.6;
-const DESK_SPACING_Z = 2.4;
+const DESK_SPACING_X = 2.8;
+const DESK_SPACING_Z = 2.6;
 const MAX_PER_ROW = 4;
 
-// Grid dinâmico de estações de trabalho — escala automaticamente com o time
+// Grid dinâmico — escala automaticamente com novos agentes
 export function Workspace({ agents, selectedAgentId, onAgentClick }: WorkspaceProps) {
-  const originX = -3.5;
-  const originZ = 4;
+  const originX = -12;
+  const originZ = 0.5;
 
   return (
     <group>
-      {/* Label da área */}
-      <mesh position={[originX + 3.5, 0.01, originZ + 2.8]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[8, 0.1]} />
-        <meshStandardMaterial color="#C9A84C" emissive="#C9A84C" emissiveIntensity={0.3} />
+      {/* Borda dourada na entrada da área de trabalho */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[originX + 5.6, 0.003, originZ - 0.3]}>
+        <planeGeometry args={[12.8, 0.06]} />
+        <meshStandardMaterial color="#C9A84C" emissive="#C9A84C" emissiveIntensity={0.4} />
       </mesh>
 
       {/* Mesas dos agentes */}
@@ -43,9 +43,9 @@ export function Workspace({ agents, selectedAgentId, onAgentClick }: WorkspacePr
         );
       })}
 
-      {/* Plantas decorativas nos cantos */}
-      <Plant position={[originX - 1.2, 0, originZ - 0.5]} />
-      <Plant position={[originX + agents.length * 0.8 + 1.5, 0, originZ - 0.5]} scale={0.9} />
+      {/* Plantas nos cantos */}
+      <Plant position={[originX - 1.3, 0, originZ]} />
+      <Plant position={[originX + MAX_PER_ROW * DESK_SPACING_X + 0.5, 0, originZ]} scale={0.9} />
     </group>
   );
 }

@@ -13,6 +13,7 @@ export const useAgentStore = create<AgentStore>((set) => ({
     ...a,
     status: 'idle',
     currentTask: null,
+    taskStartedAt: null,
   })),
 
   setAgentStatus: (id, status) =>
@@ -22,6 +23,10 @@ export const useAgentStore = create<AgentStore>((set) => ({
 
   setAgentTask: (id, task) =>
     set((state) => ({
-      agents: state.agents.map((a) => (a.id === id ? { ...a, currentTask: task } : a)),
+      agents: state.agents.map((a) =>
+        a.id === id
+          ? { ...a, currentTask: task, taskStartedAt: task ? Date.now() : null }
+          : a
+      ),
     })),
 }));

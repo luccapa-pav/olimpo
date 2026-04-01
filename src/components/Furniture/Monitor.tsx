@@ -13,7 +13,7 @@ export function Monitor({ position, rotation = [0, 0, 0], active = true, accentC
   return (
     <group position={position} rotation={rotation}>
       {/* Tela */}
-      <mesh position={[0, 0, 0]} castShadow>
+      <mesh position={[0, 0, 0]}>
         <boxGeometry args={[0.9, 0.55, 0.04]} />
         <meshStandardMaterial color="#1A1A1A" roughness={0.3} metalness={0.5} />
       </mesh>
@@ -32,14 +32,16 @@ export function Monitor({ position, rotation = [0, 0, 0], active = true, accentC
       {/* Moldura */}
       <mesh position={[0, -0.3, 0]}>
         <boxGeometry args={[0.2, 0.04, 0.04]} />
-        <meshStandardMaterial color="#222222" metalness={0.6} roughness={0.4} />
+        <meshStandardMaterial color="#323232" metalness={0.6} roughness={0.4} />
       </mesh>
 
       {/* Base */}
       <mesh position={[0, -0.38, 0.06]}>
         <boxGeometry args={[0.35, 0.04, 0.2]} />
-        <meshStandardMaterial color="#1E1E1E" metalness={0.5} roughness={0.5} />
+        <meshStandardMaterial color="#2E2E2E" metalness={0.5} roughness={0.5} />
       </mesh>
+
+      {/* Screen glow via emissive only — sem pointLight extra */}
     </group>
   );
 }
