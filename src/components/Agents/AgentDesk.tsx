@@ -1,3 +1,7 @@
+// GLTF stub — quando modelos estiverem prontos, substituir por:
+// import { useGLTF } from '@react-three/drei'
+// const { scene } = useGLTF('/models/pro_setup.glb')
+// return <primitive object={scene.clone()} position={position} />
 import { Desk } from '../Furniture/Desk';
 import { Chair } from '../Furniture/Chair';
 import { Monitor } from '../Furniture/Monitor';
@@ -22,18 +26,35 @@ export function AgentDesk({ agent, position, onAgentClick, isSelected }: AgentDe
     <group>
       <Desk position={[x, y, z]} />
       <Chair position={[x, y, z + 0.7]} rotation={[0, Math.PI, 0]} />
+      {/* Monitor principal */}
       <Monitor
-        position={[x, y + 1.15, z - 0.2]}
+        position={[x - 0.28, y + 1.15, z - 0.2]}
         active={agent.status !== 'idle'}
         accentColor={agent.accentColor}
       />
-      {/* Teclado */}
-      <mesh position={[x, y + 0.8, z + 0.15]}>
-        <boxGeometry args={[0.45, 0.02, 0.15]} />
+      {/* Monitor secundário — angulado à direita */}
+      <Monitor
+        position={[x + 0.40, y + 1.12, z - 0.22]}
+        rotation={[0, -0.22, 0]}
+        active={agent.status !== 'idle'}
+        accentColor={agent.accentColor}
+      />
+      {/* Mousepad grande com borda RGB */}
+      <mesh position={[x, y + 0.763, z + 0.16]}>
+        <boxGeometry args={[0.72, 0.005, 0.32]} />
+        <meshStandardMaterial color="#0A0A0A" roughness={0.95} metalness={0} />
+      </mesh>
+      <mesh position={[x, y + 0.766, z + 0.16]}>
+        <boxGeometry args={[0.74, 0.003, 0.34]} />
+        <meshStandardMaterial color={agent.accentColor} emissive={agent.accentColor} emissiveIntensity={0.4} />
+      </mesh>
+      {/* Teclado sobre mousepad */}
+      <mesh position={[x - 0.10, y + 0.8, z + 0.12]}>
+        <boxGeometry args={[0.42, 0.02, 0.14]} />
         <meshStandardMaterial color="#1E1E1E" roughness={0.85} />
       </mesh>
       {/* Mouse */}
-      <mesh position={[x + 0.32, y + 0.785, z + 0.15]}>
+      <mesh position={[x + 0.28, y + 0.785, z + 0.14]}>
         <boxGeometry args={[0.07, 0.015, 0.10]} />
         <meshStandardMaterial color="#1A1A1A" roughness={0.7} metalness={0.2} />
       </mesh>

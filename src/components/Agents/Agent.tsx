@@ -19,33 +19,32 @@ export function Agent({ agent, position, rotation = [0, 0, 0], onClick, isSelect
         isSelected={isSelected}
       />
 
-      {/* Holographic floating name label — sci-fi premium */}
-      <Billboard position={[0, 1.95, 0]} follow={true} scale={1.7}>
-        {/* Dark chip background */}
-        <mesh position={[0, 0, -0.002]}>
-          <planeGeometry args={[0.82, 0.26]} />
-          <meshStandardMaterial color="#030A10" transparent opacity={0.72} />
+      {/* Holographic floating name label — depthWrite/depthTest fix for no-flicker */}
+      <Billboard position={[0, 1.95, 0]} follow={true} scale={1.7} renderOrder={10}>
+        {/* Outer glow halo */}
+        <mesh position={[0, 0, -0.025]} renderOrder={10}>
+          <planeGeometry args={[0.90, 0.34]} />
+          <meshStandardMaterial
+            color={agent.accentColor}
+            emissive={agent.accentColor}
+            emissiveIntensity={0.7}
+            transparent
+            opacity={0.45}
+            depthWrite={false}
+            depthTest={false}
+          />
         </mesh>
 
-        {/* Glow border — top */}
-        <mesh position={[0, 0.13, -0.001]}>
-          <planeGeometry args={[0.82, 0.008]} />
-          <meshStandardMaterial color={agent.accentColor} emissive={agent.accentColor} emissiveIntensity={2.0} transparent opacity={0.9} />
-        </mesh>
-        {/* Glow border — bottom */}
-        <mesh position={[0, -0.13, -0.001]}>
-          <planeGeometry args={[0.82, 0.008]} />
-          <meshStandardMaterial color={agent.accentColor} emissive={agent.accentColor} emissiveIntensity={2.0} transparent opacity={0.9} />
-        </mesh>
-        {/* Glow border — left */}
-        <mesh position={[-0.41, 0, -0.001]}>
-          <planeGeometry args={[0.008, 0.26]} />
-          <meshStandardMaterial color={agent.accentColor} emissive={agent.accentColor} emissiveIntensity={2.0} transparent opacity={0.9} />
-        </mesh>
-        {/* Glow border — right */}
-        <mesh position={[0.41, 0, -0.001]}>
-          <planeGeometry args={[0.008, 0.26]} />
-          <meshStandardMaterial color={agent.accentColor} emissive={agent.accentColor} emissiveIntensity={2.0} transparent opacity={0.9} />
+        {/* Dark chip background */}
+        <mesh position={[0, 0, -0.015]} renderOrder={11}>
+          <planeGeometry args={[0.82, 0.26]} />
+          <meshStandardMaterial
+            color="#0F0F14"
+            transparent
+            opacity={0.88}
+            depthWrite={false}
+            depthTest={false}
+          />
         </mesh>
 
         {/* Name */}
@@ -57,6 +56,8 @@ export function Agent({ agent, position, rotation = [0, 0, 0], onClick, isSelect
           position={[0, 0.04, 0]}
           letterSpacing={0.10}
           font={undefined}
+          material-depthWrite={false}
+          renderOrder={12}
         >
           {agent.name.toUpperCase()}
         </Text>
@@ -64,20 +65,29 @@ export function Agent({ agent, position, rotation = [0, 0, 0], onClick, isSelect
         {/* Status sub-label */}
         <Text
           fontSize={0.065}
-          color="#446655"
+          color="#556677"
           anchorX="center"
           anchorY="middle"
           position={[0, -0.055, 0]}
           letterSpacing={0.06}
           font={undefined}
+          material-depthWrite={false}
+          renderOrder={12}
         >
           {agent.status.toUpperCase()}
         </Text>
 
         {/* Accent underline */}
-        <mesh position={[0, -0.115, 0]}>
+        <mesh position={[0, -0.115, -0.005]} renderOrder={11}>
           <planeGeometry args={[0.52, 0.006]} />
-          <meshStandardMaterial color={agent.accentColor} emissive={agent.accentColor} emissiveIntensity={2.0} transparent opacity={0.9} />
+          <meshStandardMaterial
+            color={agent.accentColor}
+            emissive={agent.accentColor}
+            emissiveIntensity={2.5}
+            transparent
+            opacity={0.95}
+            depthWrite={false}
+          />
         </mesh>
       </Billboard>
 

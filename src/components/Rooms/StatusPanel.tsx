@@ -379,15 +379,15 @@ export function StatusPanel() {
         <planeGeometry args={[PANEL_W, PANEL_H]} />
         <meshStandardMaterial
           map={texture}
-          emissive="#001020"
-          emissiveIntensity={0.25}
+          emissive="#001830"
+          emissiveIntensity={0.45}
           roughness={0.85}
           metalness={0}
         />
       </mesh>
 
       {/* Screen ambient glow */}
-      <pointLight position={[0, 0, 1.2]} intensity={0.5} color="#2050A0" distance={5} decay={2} />
+      <pointLight position={[0, 0, 1.2]} intensity={0.8} color="#3060CC" distance={6} decay={2} />
 
       {/* Wall mount bracket */}
       <mesh position={[0, -PANEL_H / 2 - 0.2, -0.1]}>

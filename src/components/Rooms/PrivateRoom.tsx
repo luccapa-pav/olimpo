@@ -49,13 +49,12 @@ function FrostedGlass({
     <mesh position={position} rotation={rotation}>
       <boxGeometry args={args} />
       <meshPhysicalMaterial
-        color="#1a2a3a"
-        transmission={0.3}
-        roughness={0.3}
-        thickness={0.05}
-        metalness={0.05}
-        opacity={0.75}
-        transparent
+        color="#b8d4e8"
+        transmission={0.92}
+        roughness={0.06}
+        thickness={0.25}
+        metalness={0}
+        ior={1.5}
       />
     </mesh>
   );

@@ -26,13 +26,12 @@ function GlassDivider({
     <mesh position={position} rotation={rotation}>
       <boxGeometry args={args} />
       <meshPhysicalMaterial
-        color="#1a2a3a"
-        transmission={0.6}
-        roughness={0.1}
-        thickness={0.05}
-        metalness={0.1}
-        opacity={0.7}
-        transparent
+        color="#b8d4e8"
+        transmission={0.88}
+        roughness={0.08}
+        thickness={0.2}
+        metalness={0}
+        ior={1.5}
       />
     </mesh>
   );
@@ -50,12 +49,12 @@ function RoomDoor({ position }: { position: [number, number, number] }) {
       <mesh position={[0, 0.75, 0]}>
         <boxGeometry args={[0.68, 1.34, 0.05]} />
         <meshPhysicalMaterial
-          color="#1a2a3a"
-          transmission={0.5}
-          roughness={0.1}
-          thickness={0.04}
-          transparent
-          opacity={0.55}
+          color="#b8d4e8"
+          transmission={0.88}
+          roughness={0.08}
+          thickness={0.15}
+          metalness={0}
+          ior={1.5}
         />
       </mesh>
       {/* Maçaneta */}
