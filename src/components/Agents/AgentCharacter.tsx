@@ -204,7 +204,7 @@ export function AgentCharacter({ agentId, positionPhase = 0 }: AgentCharacterPro
       {/* ── LEGS — seated pose (bent toward +Z) ── */}
       <group position={[-0.065, LEGS_CY, 0]} rotation={[1.1, 0, 0.04]}>
         <mesh>
-          <cylinderGeometry args={[0.038, 0.032, LEGS_H, 6]} />
+          <cylinderGeometry args={[0.038, 0.032, LEGS_H, 12]} />
           <meshStandardMaterial color={cfg.pants} roughness={0.85} />
         </mesh>
         <mesh position={[0, -(LEGS_H * 0.48), 0.05]} rotation={[0.3, 0, 0]}>
@@ -214,7 +214,7 @@ export function AgentCharacter({ agentId, positionPhase = 0 }: AgentCharacterPro
       </group>
       <group position={[0.065, LEGS_CY, 0]} rotation={[1.1, 0, -0.04]}>
         <mesh>
-          <cylinderGeometry args={[0.038, 0.032, LEGS_H, 6]} />
+          <cylinderGeometry args={[0.038, 0.032, LEGS_H, 12]} />
           <meshStandardMaterial color={cfg.pants} roughness={0.85} />
         </mesh>
         <mesh position={[0, -(LEGS_H * 0.48), 0.05]} rotation={[0.3, 0, 0]}>
@@ -237,13 +237,13 @@ export function AgentCharacter({ agentId, positionPhase = 0 }: AgentCharacterPro
 
       {/* ── NECK ── */}
       <mesh position={[0, NECK_CY, 0]}>
-        <cylinderGeometry args={[0.035, 0.035, NECK_H, 8]} />
+        <cylinderGeometry args={[0.035, 0.035, NECK_H, 12]} />
         <meshStandardMaterial color={cfg.skin} roughness={0.62} />
       </mesh>
 
       {/* ── HEAD ── */}
       <mesh position={[0, HEAD_CY, 0]}>
-        <sphereGeometry args={[HEAD_R, 8, 8]} />
+        <sphereGeometry args={[HEAD_R, 16, 16]} />
         <meshStandardMaterial color={cfg.skin} roughness={0.55} />
       </mesh>
 
@@ -252,11 +252,11 @@ export function AgentCharacter({ agentId, positionPhase = 0 }: AgentCharacterPro
 
       {/* ── EYES — on +Z face (toward camera) ── */}
       <mesh position={[-0.076, HEAD_CY + 0.038, HEAD_R - 0.012]}>
-        <sphereGeometry args={[0.032, 8, 8]} />
+        <sphereGeometry args={[0.032, 14, 14]} />
         <meshStandardMaterial color="#FFFFFF" emissive="#FFFFFF" emissiveIntensity={0.75} />
       </mesh>
       <mesh position={[0.076, HEAD_CY + 0.038, HEAD_R - 0.012]}>
-        <sphereGeometry args={[0.032, 8, 8]} />
+        <sphereGeometry args={[0.032, 14, 14]} />
         <meshStandardMaterial color="#FFFFFF" emissive="#FFFFFF" emissiveIntensity={0.75} />
       </mesh>
       {/* Pupils */}
@@ -272,11 +272,11 @@ export function AgentCharacter({ agentId, positionPhase = 0 }: AgentCharacterPro
       {/* ── LEFT ARM ── */}
       <group ref={leftArmRef} position={[-0.148, SHOULDER_Y, 0]}>
         <mesh position={[0, -0.11, 0]}>
-          <cylinderGeometry args={[0.033, 0.026, 0.22, 6]} />
+          <cylinderGeometry args={[0.033, 0.026, 0.22, 12]} />
           <meshStandardMaterial color={cfg.shirt} emissive={cfg.shirt} emissiveIntensity={0.05} roughness={0.78} />
         </mesh>
         <mesh position={[0, -0.225, 0]}>
-          <sphereGeometry args={[0.030, 6, 6]} />
+          <sphereGeometry args={[0.030, 12, 12]} />
           <meshStandardMaterial color={cfg.skin} roughness={0.62} />
         </mesh>
       </group>
@@ -284,11 +284,11 @@ export function AgentCharacter({ agentId, positionPhase = 0 }: AgentCharacterPro
       {/* ── RIGHT ARM ── */}
       <group ref={rightArmRef} position={[0.148, SHOULDER_Y, 0]}>
         <mesh position={[0, -0.11, 0]}>
-          <cylinderGeometry args={[0.033, 0.026, 0.22, 6]} />
+          <cylinderGeometry args={[0.033, 0.026, 0.22, 12]} />
           <meshStandardMaterial color={cfg.shirt} emissive={cfg.shirt} emissiveIntensity={0.05} roughness={0.78} />
         </mesh>
         <mesh position={[0, -0.225, 0]}>
-          <sphereGeometry args={[0.030, 6, 6]} />
+          <sphereGeometry args={[0.030, 12, 12]} />
           <meshStandardMaterial color={cfg.skin} roughness={0.62} />
         </mesh>
       </group>
@@ -395,7 +395,7 @@ export function AgentCharacter({ agentId, positionPhase = 0 }: AgentCharacterPro
 
       {/* ── STATUS indicator dot ── */}
       <mesh position={[0.19, HEAD_CY + HEAD_R + 0.11, 0]}>
-        <sphereGeometry args={[0.040, 6, 6]} />
+        <sphereGeometry args={[0.040, 14, 14]} />
         <meshStandardMaterial color={statusColor} emissive={statusColor} emissiveIntensity={1.5} />
       </mesh>
 

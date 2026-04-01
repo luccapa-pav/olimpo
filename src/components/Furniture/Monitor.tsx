@@ -7,8 +7,9 @@ interface MonitorProps {
 }
 
 export function Monitor({ position, rotation = [0, 0, 0], active = true, accentColor = '#4A90D9' }: MonitorProps) {
-  const screenColor = active ? accentColor : '#111111';
-  const emissiveIntensity = active ? 0.6 : 0;
+  const screenColor = active ? accentColor : '#050C18';
+  const emissive    = active ? accentColor : '#0A1A2E';
+  const emissiveIntensity = active ? 0.6 : 0.18;
 
   return (
     <group position={position} rotation={rotation}>
@@ -23,7 +24,7 @@ export function Monitor({ position, rotation = [0, 0, 0], active = true, accentC
         <boxGeometry args={[0.82, 0.48, 0.001]} />
         <meshStandardMaterial
           color={screenColor}
-          emissive={screenColor}
+          emissive={emissive}
           emissiveIntensity={emissiveIntensity}
           roughness={0.1}
         />

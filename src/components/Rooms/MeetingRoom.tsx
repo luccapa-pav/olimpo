@@ -1,4 +1,5 @@
 import { Chair } from '../Furniture/Chair';
+import { Notepad } from '../Furniture/DeskProps';
 
 // Sala de Reunião Geral: x[-8,-1], z[-12,-7]
 // Centro: (-4.5, 0, -9.5) | Largura: 7 | Profundidade: 5
@@ -116,6 +117,12 @@ export function MeetingRoom({ agentCount }: MeetingRoomProps) {
       {/* Porta de vidro com moldura */}
       <RoomDoor position={[doorX, 0, -7]} />
 
+      {/* Tapete sob a mesa de conferência */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[MR_CX, 0.001, MR_CZ]}>
+        <planeGeometry args={[tableLen + 1.2, tableW + 2.2]} />
+        <meshStandardMaterial color="#161210" roughness={0.95} metalness={0} />
+      </mesh>
+
       {/* Mesa de conferência — tampo */}
       <mesh position={[MR_CX, tableY, MR_CZ]}>
         <boxGeometry args={[tableLen, 0.06, tableW]} />
@@ -170,6 +177,11 @@ export function MeetingRoom({ agentCount }: MeetingRoomProps) {
         position={[MR_CX + tableLen / 2 + 0.55, 0, MR_CZ]}
         rotation={[0, -Math.PI / 2, 0]}
       />
+
+      {/* Notepads na mesa de conferência */}
+      <Notepad position={[MR_CX - 0.8, tableY + 0.035, MR_CZ - 0.35]} accentColor="#C9A84C" />
+      <Notepad position={[MR_CX,       tableY + 0.035, MR_CZ + 0.35]} rotation={[0, Math.PI, 0]} accentColor="#00CC88" />
+      <Notepad position={[MR_CX + 0.8, tableY + 0.035, MR_CZ - 0.35]} accentColor="#5588FF" />
 
       {/* Tela/TV na parede do fundo (norte) */}
       <mesh position={[MR_CX, 1.6, -11.93]}>

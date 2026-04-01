@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
+import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing';
 import { Office } from './components/Scene/Office';
 import { ChatPanel } from './components/UI/ChatPanel';
 import { StatusBar } from './components/UI/StatusBar';
@@ -13,15 +14,21 @@ export default function App() {
         <Canvas
           orthographic
           camera={{ zoom: 40, position: [14, 14, 14], near: 0.1, far: 1000 }}
+          shadows
           gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
           dpr={[1, 1.5]}
           frameloop="demand"
           performance={{ min: 0.5 }}
         >
           <color attach="background" args={['#0D0D0D']} />
-          <fog attach="fog" args={['#0D0D0D', 35, 90]} />
+          <fog attach="fog" args={['#0D0D0D', 28, 80]} />
 
           <Office />
+
+          <EffectComposer>
+            <Bloom intensity={0.35} luminanceThreshold={0.6} luminanceSmoothing={0.9} mipmapBlur />
+            <Vignette eskil={false} offset={0.3} darkness={0.5} />
+          </EffectComposer>
 
           <OrbitControls
             enableRotate={false}
