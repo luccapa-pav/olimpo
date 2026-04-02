@@ -26,9 +26,9 @@ function GlassDivider({
     <mesh position={position} rotation={rotation}>
       <boxGeometry args={args} />
       <meshPhysicalMaterial
-        color="#b8d4e8"
-        transmission={0.88}
-        roughness={0.08}
+        color="#e6f2ff"
+        transmission={0.95}
+        roughness={0.05}
         thickness={0.2}
         metalness={0}
         ior={1.5}
@@ -49,9 +49,9 @@ function RoomDoor({ position }: { position: [number, number, number] }) {
       <mesh position={[0, 0.75, 0]}>
         <boxGeometry args={[0.68, 1.34, 0.05]} />
         <meshPhysicalMaterial
-          color="#b8d4e8"
-          transmission={0.88}
-          roughness={0.08}
+          color="#e6f2ff"
+          transmission={0.95}
+          roughness={0.05}
           thickness={0.15}
           metalness={0}
           ior={1.5}

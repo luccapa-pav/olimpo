@@ -1,29 +1,41 @@
 // Elementos vegetais e decorativos do escritório
 
-// ── Vaso grande de chão para cantos ──────────────────────────────────────────
+// ── Vaso grande de chão — São Jorge (Sansevieria) ─────────────────────────────
 export function LargePot({ position }: { position: [number, number, number] }) {
+  const LEAF_H = 0.88;
+  const angles = [0, 45, 90, 135, 180, 225, 270, 315];
   return (
     <group position={position}>
-      <mesh position={[0, 0.28, 0]}>
-        <cylinderGeometry args={[0.22, 0.18, 0.56, 16]} />
-        <meshStandardMaterial color="#1A1A1A" roughness={0.8} metalness={0.15} />
+      {/* Vaso */}
+      <mesh position={[0, 0.22, 0]}>
+        <cylinderGeometry args={[0.19, 0.15, 0.44, 14]} />
+        <meshStandardMaterial color="#1A1A1A" roughness={0.85} />
       </mesh>
-      <mesh position={[0, 0.565, 0]}>
-        <torusGeometry args={[0.23, 0.018, 8, 24]} />
-        <meshStandardMaterial color="#333333" metalness={0.5} roughness={0.5} />
+      {/* Borda */}
+      <mesh position={[0, 0.445, 0]}>
+        <torusGeometry args={[0.19, 0.015, 6, 16]} />
+        <meshStandardMaterial color="#2A2A2A" roughness={0.8} />
       </mesh>
-      <mesh position={[0, 1.1, 0]}>
-        <sphereGeometry args={[0.38, 14, 12]} />
-        <meshStandardMaterial color="#1E3D28" roughness={0.85} />
+      {/* Terra */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.44, 0]}>
+        <circleGeometry args={[0.18, 12]} />
+        <meshStandardMaterial color="#1A1008" roughness={1.0} />
       </mesh>
-      <mesh position={[0.25, 0.95, 0.12]}>
-        <sphereGeometry args={[0.22, 12, 10]} />
-        <meshStandardMaterial color="#264830" roughness={0.85} />
-      </mesh>
-      <mesh position={[-0.22, 0.90, -0.10]}>
-        <sphereGeometry args={[0.18, 10, 8]} />
-        <meshStandardMaterial color="#1A3020" roughness={0.85} />
-      </mesh>
+      {/* Folhas de espada */}
+      {angles.map((deg, i) => {
+        const r = (deg * Math.PI) / 180;
+        const spread = 0.055 + (i % 2) * 0.035;
+        return (
+          <mesh
+            key={i}
+            position={[Math.sin(r) * spread, 0.44 + LEAF_H / 2, Math.cos(r) * spread]}
+            rotation={[(i % 2) * 0.13, r, (i % 3 === 0 ? 0.06 : -0.06)]}
+          >
+            <boxGeometry args={[0.038, LEAF_H, 0.012]} />
+            <meshStandardMaterial color={i % 2 === 0 ? '#1E4228' : '#2A5C35'} roughness={0.88} />
+          </mesh>
+        );
+      })}
     </group>
   );
 }
@@ -71,43 +83,57 @@ interface DecoPlantProps {
 }
 
 export function DecoPlant({ position, height = 0.9, leafColor = '#2D5A3D' }: DecoPlantProps) {
+  const leafCount = 4;
   return (
     <group position={position}>
-      {/* Vaso — cilindro fino escuro */}
+      {/* Vaso */}
       <mesh position={[0, 0.14, 0]}>
-        <cylinderGeometry args={[0.09, 0.07, 0.26, 12]} />
-        <meshStandardMaterial color="#222222" roughness={0.8} metalness={0.1} />
+        <cylinderGeometry args={[0.11, 0.085, 0.28, 10]} />
+        <meshStandardMaterial color="#222222" roughness={0.9} />
       </mesh>
       {/* Borda do vaso */}
-      <mesh position={[0, 0.27, 0]}>
-        <torusGeometry args={[0.092, 0.01, 8, 16]} />
-        <meshStandardMaterial color="#333333" metalness={0.5} roughness={0.5} />
+      <mesh position={[0, 0.275, 0]}>
+        <torusGeometry args={[0.11, 0.012, 6, 12]} />
+        <meshStandardMaterial color="#333333" roughness={0.8} />
       </mesh>
       {/* Terra */}
-      <mesh position={[0, 0.265, 0]}>
-        <cylinderGeometry args={[0.088, 0.088, 0.015, 12]} />
-        <meshStandardMaterial color="#1A1008" roughness={1} />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.272, 0]}>
+        <circleGeometry args={[0.10, 10]} />
+        <meshStandardMaterial color="#1A1008" roughness={1.0} />
       </mesh>
-      {/* Caule fino */}
-      <mesh position={[0, 0.27 + height / 2, 0]}>
-        <cylinderGeometry args={[0.014, 0.02, height, 8]} />
-        <meshStandardMaterial color="#3A2A12" roughness={0.9} />
-      </mesh>
-      {/* Folha esfera principal */}
-      <mesh position={[0, 0.27 + height + 0.16, 0]}>
-        <sphereGeometry args={[0.20, 14, 12]} />
-        <meshStandardMaterial color={leafColor} roughness={0.85} />
-      </mesh>
-      {/* Folha esfera menor lateral */}
-      <mesh position={[0.12, 0.27 + height + 0.04, 0.06]}>
-        <sphereGeometry args={[0.11, 12, 10]} />
-        <meshStandardMaterial color={leafColor} roughness={0.85} />
-      </mesh>
-      {/* Folha esfera menor oposta */}
-      <mesh position={[-0.10, 0.27 + height + 0.06, -0.08]}>
-        <sphereGeometry args={[0.09, 10, 8]} />
-        <meshStandardMaterial color="#3A6B4A" roughness={0.85} />
-      </mesh>
+      {/* 4 caules arqueados com folhas — estilo Zamioculca */}
+      {Array.from({ length: 4 }, (_, i) => {
+        const angle = (i / 4) * Math.PI * 2 + Math.PI / 8;
+        const lean = 0.18 + (i % 2) * 0.08;
+        const sx = Math.sin(angle) * lean;
+        const sz = Math.cos(angle) * lean;
+        return (
+          <group key={i}>
+            {/* Caule */}
+            <mesh
+              position={[sx * 0.5, 0.28 + height * 0.4, sz * 0.5]}
+              rotation={[sz * 0.35, angle, -sx * 0.35]}
+            >
+              <cylinderGeometry args={[0.006, 0.009, height * 0.85, 6]} />
+              <meshStandardMaterial color="#3A2A12" roughness={0.9} />
+            </mesh>
+            {/* Folhetos ao longo do caule */}
+            {Array.from({ length: leafCount }, (_, j) => {
+              const t = (j + 1) / (leafCount + 1);
+              return (
+                <mesh
+                  key={j}
+                  position={[sx * (0.3 + t * 0.7), 0.28 + height * t * 0.9, sz * (0.3 + t * 0.7)]}
+                  rotation={[sz * 0.5 * t, angle + Math.PI / 2, -sx * 0.5 * t]}
+                >
+                  <boxGeometry args={[0.005, 0.085, 0.042]} />
+                  <meshStandardMaterial color={j % 2 === 0 ? leafColor : '#3A6B4A'} roughness={0.88} />
+                </mesh>
+              );
+            })}
+          </group>
+        );
+      })}
     </group>
   );
 }

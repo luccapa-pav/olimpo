@@ -10,6 +10,23 @@ const FIXTURE_COUNT = Math.floor(TRACK_LEN / FIXTURE_SPACING);
 const TRACK_Z_POSITIONS = [0.5, 2.5];
 
 
+function TrackRail({ cx, z }: { cx: number; z: number }) {
+  return (
+    <>
+      {/* Rail channel — dark aluminium */}
+      <mesh position={[cx, TRACK_Y, z]}>
+        <boxGeometry args={[TRACK_LEN, 0.045, 0.045]} />
+        <meshStandardMaterial color="#111111" metalness={0.85} roughness={0.15} />
+      </mesh>
+      {/* Bottom white stripe */}
+      <mesh position={[cx, TRACK_Y - 0.025, z]}>
+        <boxGeometry args={[TRACK_LEN - 0.1, 0.01, 0.028]} />
+        <meshStandardMaterial color="#FFFFFF" emissive="#FFFFFF" emissiveIntensity={0.06} />
+      </mesh>
+    </>
+  );
+}
+
 function FixtureHead({ x, z }: { x: number; z: number }) {
   return (
     <group position={[x, TRACK_Y, z]}>
@@ -43,6 +60,7 @@ export function TrackLighting() {
     <group>
       {TRACK_Z_POSITIONS.map((z) => (
         <group key={z}>
+          <TrackRail cx={TRACK_CX} z={z} />
           {Array.from({ length: FIXTURE_COUNT }, (_, i) => {
             const x = startX + FIXTURE_SPACING * 0.5 + i * FIXTURE_SPACING;
             return <FixtureHead key={i} x={x} z={z} />;

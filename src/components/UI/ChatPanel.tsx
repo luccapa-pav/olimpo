@@ -4,6 +4,15 @@ import { useUIStore } from '../../stores/uiStore';
 import { useAgentStore } from '../../stores/agentStore';
 import { sendChatMessage } from '../../api/chat';
 
+function cleanText(text: string): string {
+  return text
+    .replace(/<(tool_call|tool_response|tool_use|tool_result)[\s\S]*?<\/(tool_call|tool_response|tool_use|tool_result)>/gi, '')
+    .replace(/\[(tool_call|tool_response|tool_use|tool_result)\][\s\S]*?\[\/(tool_call|tool_response|tool_use|tool_result)\]/gi, '')
+    .replace(/\[tool_(?:call|response|use|result)[^\]]*\]/gi, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 function formatTime(ts: number): string {
   const d = new Date(ts);
   return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
@@ -314,7 +323,7 @@ export function ChatPanel() {
                       wordBreak: 'break-word',
                     }}
                   >
-                    {msg.content}
+                    {msg.role === 'assistant' ? cleanText(msg.content) : msg.content}
                   </div>
                   <span
                     style={{
@@ -331,66 +340,77 @@ export function ChatPanel() {
               ))}
 
               {/* Loading indicator */}
-              {chat?.isLoading && (
-                <motion.div
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    marginTop: '10px',
-                  }}
-                >
-                  <div
+              {chat?.isLoading && (() => {
+                const loadingVerb: Record<string, string> = {
+                  hermes: 'está pesquisando',
+                  atlas:  'está analisando',
+                };
+                const verb = loadingVerb[agent.id] ?? 'está processando';
+                return (
+                  <motion.div
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
                     style={{
-                      width: 28,
-                      height: 28,
-                      borderRadius: '50%',
-                      background: alpha(agent.accentColor, '20'),
-                      border: `1px solid ${alpha(agent.accentColor, '40')}`,
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '11px',
-                      color: agent.accentColor,
-                      fontWeight: 700,
-                      flexShrink: 0,
+                      gap: '8px',
+                      marginTop: '10px',
                     }}
                   >
-                    {agent.name[0]}
-                  </div>
-                  <div
-                    style={{
-                      display: 'flex',
-                      gap: '5px',
-                      padding: '10px 14px',
-                      background: alpha(agent.accentColor, '18'),
-                      border: `1px solid ${alpha(agent.accentColor, '30')}`,
-                      borderRadius: '16px 16px 16px 4px',
-                    }}
-                  >
-                    {[0, 1, 2].map((i) => (
-                      <motion.div
-                        key={i}
-                        animate={{ opacity: [0.25, 1, 0.25], y: [0, -4, 0] }}
-                        transition={{
-                          duration: 0.75,
-                          repeat: Infinity,
-                          delay: i * 0.15,
-                          ease: 'easeInOut',
-                        }}
-                        style={{
-                          width: 7,
-                          height: 7,
-                          borderRadius: '50%',
-                          background: agent.accentColor,
-                        }}
-                      />
-                    ))}
-                  </div>
-                </motion.div>
-              )}
+                    <div
+                      style={{
+                        width: 28,
+                        height: 28,
+                        borderRadius: '50%',
+                        background: alpha(agent.accentColor, '20'),
+                        border: `1px solid ${alpha(agent.accentColor, '40')}`,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '11px',
+                        color: agent.accentColor,
+                        fontWeight: 700,
+                        flexShrink: 0,
+                      }}
+                    >
+                      {agent.name[0]}
+                    </div>
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '5px',
+                        padding: '10px 14px',
+                        background: alpha(agent.accentColor, '18'),
+                        border: `1px solid ${alpha(agent.accentColor, '30')}`,
+                        borderRadius: '16px 16px 16px 4px',
+                      }}
+                    >
+                      {[0, 1, 2].map((i) => (
+                        <motion.div
+                          key={i}
+                          animate={{ opacity: [0.25, 1, 0.25], y: [0, -4, 0] }}
+                          transition={{
+                            duration: 0.75,
+                            repeat: Infinity,
+                            delay: i * 0.15,
+                            ease: 'easeInOut',
+                          }}
+                          style={{
+                            width: 7,
+                            height: 7,
+                            borderRadius: '50%',
+                            background: agent.accentColor,
+                          }}
+                        />
+                      ))}
+                      <span style={{ color: '#666', fontSize: '12px', marginLeft: '4px' }}>
+                        {agent.name} {verb}…
+                      </span>
+                    </div>
+                  </motion.div>
+                );
+              })()}
 
               <div ref={messagesEndRef} />
             </div>

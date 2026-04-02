@@ -4,8 +4,8 @@ import { Chair } from '../Furniture/Chair';
 // Recebe `position` como centro da sala
 
 const WALL_H = 3.5;
-const W = 2.5;   // largura total
-const D = 2.5;   // profundidade total
+const W = 3.5;   // largura total (40% maior)
+const D = 3.5;   // profundidade total (40% maior)
 
 interface PrivateRoomProps {
   position: [number, number, number];
@@ -49,10 +49,10 @@ function FrostedGlass({
     <mesh position={position} rotation={rotation}>
       <boxGeometry args={args} />
       <meshPhysicalMaterial
-        color="#b8d4e8"
-        transmission={0.92}
-        roughness={0.06}
-        thickness={0.25}
+        color="#e6f2ff"
+        transmission={0.95}
+        roughness={0.05}
+        thickness={0.2}
         metalness={0}
         ior={1.5}
       />
@@ -93,9 +93,9 @@ export function PrivateRoom({ position, occupied = false, roomName: _roomName = 
 
   // 3 cadeiras ao redor da mesa redonda
   const chairPositions: { pos: [number, number, number]; rot: [number, number, number] }[] = [
-    { pos: [0, 0, 0.70],    rot: [0, Math.PI, 0] },
-    { pos: [-0.62, 0, -0.48], rot: [0, 0.55, 0] },
-    { pos: [0.62, 0, -0.48],  rot: [0, -0.55, 0] },
+    { pos: [0, 0, 0.98],     rot: [0, Math.PI, 0] },
+    { pos: [-0.87, 0, -0.67], rot: [0, 0.55, 0] },
+    { pos: [0.87, 0, -0.67],  rot: [0, -0.55, 0] },
   ];
 
   return (
@@ -165,7 +165,7 @@ export function PrivateRoom({ position, occupied = false, roomName: _roomName = 
       </group>
 
       {/* Indicador de status ao lado da porta */}
-      <DoorIndicator occupied={occupied} offsetX={0.48} offsetZ={D / 2 + 0.06} />
+      <DoorIndicator occupied={occupied} offsetX={0.67} offsetZ={D / 2 + 0.06} />
     </group>
   );
 }

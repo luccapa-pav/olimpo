@@ -15,12 +15,25 @@ export function Floor() {
         <meshStandardMaterial color="#141414" roughness={0.4} metalness={0.12} />
       </mesh>
 
-      {/* Overlay piso CEO — dark stone matte */}
+      {/* Overlay piso CEO — dark noble wood */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-11, 0.01, -9.5]}>
         <planeGeometry args={[6, 5]} />
         <meshStandardMaterial
-          color="#0C0C0C"
-          roughness={0.92}
+          color="#1A0E06"
+          roughness={0.6}
+          metalness={0.05}
+          polygonOffset
+          polygonOffsetFactor={-1}
+          polygonOffsetUnits={-1}
+        />
+      </mesh>
+
+      {/* Overlay piso Sala de Reunião — luxury carpet */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-4.5, 0.01, -9.5]}>
+        <planeGeometry args={[7, 5]} />
+        <meshStandardMaterial
+          color="#14100A"
+          roughness={1.0}
           metalness={0}
           polygonOffset
           polygonOffsetFactor={-1}
@@ -29,8 +42,8 @@ export function Floor() {
       </mesh>
 
       {/* Overlay piso Sala Privada 1 — deep navy */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[9.0, 0.01, -8.5]}>
-        <planeGeometry args={[2.38, 2.38]} />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[5.75, 0.01, -10.25]}>
+        <planeGeometry args={[3.38, 3.38]} />
         <meshStandardMaterial
           color="#080E18"
           roughness={0.85}
@@ -42,8 +55,8 @@ export function Floor() {
       </mesh>
 
       {/* Overlay piso Sala Privada 2 — deep navy */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[9.0, 0.01, -5.75]}>
-        <planeGeometry args={[2.38, 2.38]} />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[9.0, 0.01, -10.25]}>
+        <planeGeometry args={[3.38, 3.38]} />
         <meshStandardMaterial
           color="#080E18"
           roughness={0.85}
@@ -52,40 +65,6 @@ export function Floor() {
           polygonOffsetFactor={-1}
           polygonOffsetUnits={-1}
         />
-      </mesh>
-
-      {/* Meeting room overlay removed — MeetingRoom.tsx handles its own carpet internally */}
-
-      {/* ── LEDs dourados de contorno do chão ── */}
-
-      {/* Soleira — entrada das salas privadas (sul das salas) */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-11.25, 0.003, -4.25]}>
-        <planeGeometry args={[5.5, 0.055]} />
-        <meshStandardMaterial color="#DAA520" emissive="#DAA520" emissiveIntensity={0.5} />
-      </mesh>
-
-      {/* LED parede norte (fundo) */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-1.5, 0.003, -11.9]}>
-        <planeGeometry args={[26, 0.055]} />
-        <meshStandardMaterial color="#DAA520" emissive="#DAA520" emissiveIntensity={0.4} />
-      </mesh>
-
-      {/* LED parede oeste (esquerda) */}
-      <mesh rotation={[-Math.PI / 2, 0, Math.PI / 2]} position={[-13.9, 0.003, -0.5]}>
-        <planeGeometry args={[24, 0.055]} />
-        <meshStandardMaterial color="#DAA520" emissive="#DAA520" emissiveIntensity={0.4} />
-      </mesh>
-
-      {/* LED parede leste (direita) */}
-      <mesh rotation={[-Math.PI / 2, 0, Math.PI / 2]} position={[10.9, 0.003, -0.5]}>
-        <planeGeometry args={[24, 0.055]} />
-        <meshStandardMaterial color="#DAA520" emissive="#DAA520" emissiveIntensity={0.4} />
-      </mesh>
-
-      {/* LED frente sul */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-1.5, 0.003, 11.4]}>
-        <planeGeometry args={[26, 0.055]} />
-        <meshStandardMaterial color="#DAA520" emissive="#DAA520" emissiveIntensity={0.35} />
       </mesh>
 
       {/* ── Cove LED ceiling strips (y=3.46) ── */}
@@ -168,24 +147,6 @@ export function Walls() {
         );
       })}
 
-      {/* ── Rodapés metálicos dourados ── */}
-      <mesh position={[-1.5, 0.04, -11.9]}>
-        <boxGeometry args={[26, 0.08, 0.02]} />
-        <meshStandardMaterial color="#C9A84C" emissive="#C9A84C" emissiveIntensity={0.3} />
-      </mesh>
-      <mesh position={[-13.9, 0.04, -0.5]} rotation={[0, Math.PI / 2, 0]}>
-        <boxGeometry args={[24, 0.08, 0.02]} />
-        <meshStandardMaterial color="#C9A84C" emissive="#C9A84C" emissiveIntensity={0.3} />
-      </mesh>
-      <mesh position={[10.9, 0.04, -0.5]} rotation={[0, Math.PI / 2, 0]}>
-        <boxGeometry args={[24, 0.08, 0.02]} />
-        <meshStandardMaterial color="#C9A84C" emissive="#C9A84C" emissiveIntensity={0.3} />
-      </mesh>
-      {/* Rodapé parede sul */}
-      <mesh position={[-1.5, 0.04, 11.9]}>
-        <boxGeometry args={[26, 0.08, 0.02]} />
-        <meshStandardMaterial color="#C9A84C" emissive="#C9A84C" emissiveIntensity={0.3} />
-      </mesh>
     </>
   );
 }

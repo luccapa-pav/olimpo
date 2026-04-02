@@ -1,4 +1,6 @@
-import { Billboard, Text } from '@react-three/drei';
+import { useMemo } from 'react';
+import * as THREE from 'three';
+import { Billboard } from '@react-three/drei';
 import { AgentCharacter } from './AgentCharacter';
 import type { AgentState } from '../../types';
 
@@ -11,6 +13,57 @@ interface AgentProps {
 }
 
 export function Agent({ agent, position, rotation = [0, 0, 0], onClick, isSelected }: AgentProps) {
+  const labelTexture = useMemo(() => {
+    const W = 512, H = 128;
+    const canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext('2d')!;
+
+    ctx.clearRect(0, 0, W, H);
+
+    // Outer glow
+    ctx.fillStyle = agent.accentColor;
+    ctx.globalAlpha = 0.28;
+    if ((ctx as any).roundRect) (ctx as any).roundRect(2, 2, W - 4, H - 4, 14);
+    else ctx.rect(2, 2, W - 4, H - 4);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+
+    // Dark background
+    ctx.fillStyle = '#000000';
+    ctx.globalAlpha = 1.0;
+    if ((ctx as any).roundRect) (ctx as any).roundRect(8, 8, W - 16, H - 16, 8);
+    else ctx.rect(8, 8, W - 16, H - 16);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+
+    // Top + bottom accent lines
+    ctx.strokeStyle = agent.accentColor;
+    ctx.lineWidth = 2.5;
+    ctx.globalAlpha = 0.75;
+    ctx.beginPath();
+    ctx.moveTo(22, 11); ctx.lineTo(W - 22, 11);
+    ctx.moveTo(22, H - 11); ctx.lineTo(W - 22, H - 11);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+
+    // Name
+    ctx.font = 'bold 48px monospace';
+    ctx.fillStyle = '#FFFFFF';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(agent.name.toUpperCase(), W / 2, H * 0.38);
+
+    // Status
+    ctx.font = '26px monospace';
+    ctx.globalAlpha = 0.75;
+    ctx.fillStyle = agent.accentColor;
+    ctx.fillText(agent.status.toUpperCase(), W / 2, H * 0.72);
+    ctx.globalAlpha = 1;
+
+    return new THREE.CanvasTexture(canvas);
+  }, [agent.name, agent.accentColor, agent.status]);
+
   return (
     <group position={position} rotation={rotation} onClick={onClick}>
       <AgentCharacter
@@ -19,74 +72,15 @@ export function Agent({ agent, position, rotation = [0, 0, 0], onClick, isSelect
         isSelected={isSelected}
       />
 
-      {/* Holographic floating name label — depthWrite/depthTest fix for no-flicker */}
-      <Billboard position={[0, 1.95, 0]} follow={true} scale={1.7} renderOrder={10}>
-        {/* Outer glow halo */}
-        <mesh position={[0, 0, -0.025]} renderOrder={10}>
-          <planeGeometry args={[0.90, 0.34]} />
-          <meshStandardMaterial
-            color={agent.accentColor}
-            emissive={agent.accentColor}
-            emissiveIntensity={0.7}
-            transparent
-            opacity={0.45}
-            depthWrite={false}
-            depthTest={false}
-          />
-        </mesh>
-
-        {/* Dark chip background */}
-        <mesh position={[0, 0, -0.015]} renderOrder={11}>
+      {/* Holographic floating name label — single CanvasTexture mesh, zero Z-fighting */}
+      <Billboard position={[0, 1.95, 0]} follow={true} scale={[3.6, 1.1, 1]}>
+        <mesh renderOrder={10}>
           <planeGeometry args={[0.82, 0.26]} />
-          <meshStandardMaterial
-            color="#0F0F14"
+          <meshBasicMaterial
+            map={labelTexture}
             transparent
-            opacity={0.88}
             depthWrite={false}
             depthTest={false}
-          />
-        </mesh>
-
-        {/* Name */}
-        <Text
-          fontSize={0.11}
-          color={agent.accentColor}
-          anchorX="center"
-          anchorY="middle"
-          position={[0, 0.04, 0]}
-          letterSpacing={0.10}
-          font={undefined}
-          material-depthWrite={false}
-          renderOrder={12}
-        >
-          {agent.name.toUpperCase()}
-        </Text>
-
-        {/* Status sub-label */}
-        <Text
-          fontSize={0.065}
-          color="#556677"
-          anchorX="center"
-          anchorY="middle"
-          position={[0, -0.055, 0]}
-          letterSpacing={0.06}
-          font={undefined}
-          material-depthWrite={false}
-          renderOrder={12}
-        >
-          {agent.status.toUpperCase()}
-        </Text>
-
-        {/* Accent underline */}
-        <mesh position={[0, -0.115, -0.005]} renderOrder={11}>
-          <planeGeometry args={[0.52, 0.006]} />
-          <meshStandardMaterial
-            color={agent.accentColor}
-            emissive={agent.accentColor}
-            emissiveIntensity={2.5}
-            transparent
-            opacity={0.95}
-            depthWrite={false}
           />
         </mesh>
       </Billboard>

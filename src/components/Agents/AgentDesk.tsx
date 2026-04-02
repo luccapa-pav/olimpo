@@ -26,19 +26,28 @@ export function AgentDesk({ agent, position, onAgentClick, isSelected }: AgentDe
     <group>
       <Desk position={[x, y, z]} />
       <Chair position={[x, y, z + 0.7]} rotation={[0, Math.PI, 0]} />
-      {/* Monitor principal */}
+      {/* Monitor central */}
       <Monitor
-        position={[x - 0.28, y + 1.15, z - 0.2]}
+        position={[x, y + 1.15, z - 0.22]}
         active={agent.status !== 'idle'}
         accentColor={agent.accentColor}
       />
-      {/* Monitor secundário — angulado à direita */}
-      <Monitor
-        position={[x + 0.40, y + 1.12, z - 0.22]}
-        rotation={[0, -0.22, 0]}
-        active={agent.status !== 'idle'}
-        accentColor={agent.accentColor}
-      />
+      {/* Monitor esquerdo — arco à esquerda */}
+      <group position={[x - 0.80, y + 1.12, z - 0.14]} rotation={[0, Math.PI / 6, 0]} scale={0.78}>
+        <Monitor
+          position={[0, 0, 0]}
+          active={agent.status !== 'idle'}
+          accentColor={agent.accentColor}
+        />
+      </group>
+      {/* Monitor direito — arco à direita */}
+      <group position={[x + 0.80, y + 1.12, z - 0.14]} rotation={[0, -Math.PI / 6, 0]} scale={0.78}>
+        <Monitor
+          position={[0, 0, 0]}
+          active={agent.status !== 'idle'}
+          accentColor={agent.accentColor}
+        />
+      </group>
       {/* Mousepad grande com borda RGB */}
       <mesh position={[x, y + 0.763, z + 0.16]}>
         <boxGeometry args={[0.72, 0.005, 0.32]} />
@@ -73,7 +82,7 @@ export function AgentDesk({ agent, position, onAgentClick, isSelected }: AgentDe
       <WaterBottle position={[x + 0.52, y + 0.775, z + 0.28]} />
       {/* Cable management — fios atrás do monitor descendo ao PC tower */}
       {/* Bundle de cabos horizontal, atrás do monitor */}
-      <mesh position={[x + 0.20, y + 0.92, z - 0.38]} rotation={[0, 0, Math.PI / 12]}>
+      <mesh position={[x, y + 0.92, z - 0.40]} rotation={[0, 0, Math.PI / 12]}>
         <cylinderGeometry args={[0.008, 0.008, 0.32, 6]} />
         <meshStandardMaterial color="#0A0A0A" roughness={0.9} />
       </mesh>
