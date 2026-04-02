@@ -30,9 +30,11 @@ function alpha(hex: string, a: string) {
 export function ChatPanel() {
   const { selectedAgentId, chatPanelOpen, setChatPanelOpen, chats, addMessage, setChatLoading } =
     useUIStore();
-  const agents = useAgentStore((s) => s.agents);
+  const agents       = useAgentStore((s) => s.agents);
   const setAgentStatus = useAgentStore((s) => s.setAgentStatus);
-  const setAgentTask = useAgentStore((s) => s.setAgentTask);
+  const setAgentTask   = useAgentStore((s) => s.setAgentTask);
+  const startMeeting   = useAgentStore((s) => s.startMeeting);
+  const endMeeting     = useAgentStore((s) => s.endMeeting);
 
   const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -98,10 +100,8 @@ export function ChatPanel() {
         if (delegated.length > 0) {
           hasDelegation = true;
           const involved = ['atlas', ...delegated];
-          involved.forEach(id => setAgentStatus(id, 'meeting'));
-          setTimeout(() => {
-            involved.forEach(id => setAgentStatus(id, 'idle'));
-          }, 5000);
+          startMeeting(involved);
+          setTimeout(() => endMeeting(involved), 10000);
         }
       }
     } catch (err) {

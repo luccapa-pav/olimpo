@@ -5,7 +5,9 @@ import type { AgentState, AgentStatus } from '../types';
 interface AgentStore {
   agents: AgentState[];
   setAgentStatus: (id: string, status: AgentStatus) => void;
-  setAgentTask: (id: string, task: string | null) => void;
+  setAgentTask:   (id: string, task: string | null) => void;
+  startMeeting:   (agentIds: string[]) => void;
+  endMeeting:     (agentIds: string[]) => void;
 }
 
 export const useAgentStore = create<AgentStore>((set) => ({
@@ -27,6 +29,20 @@ export const useAgentStore = create<AgentStore>((set) => ({
         a.id === id
           ? { ...a, currentTask: task, taskStartedAt: task ? Date.now() : null }
           : a
+      ),
+    })),
+
+  startMeeting: (agentIds) =>
+    set((state) => ({
+      agents: state.agents.map((a) =>
+        agentIds.includes(a.id) ? { ...a, status: 'meeting' } : a
+      ),
+    })),
+
+  endMeeting: (agentIds) =>
+    set((state) => ({
+      agents: state.agents.map((a) =>
+        agentIds.includes(a.id) ? { ...a, status: 'idle', currentTask: null } : a
       ),
     })),
 }));
