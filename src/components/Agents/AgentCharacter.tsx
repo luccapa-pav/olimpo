@@ -165,7 +165,7 @@ export function AgentCharacter({ agentId, positionPhase = 0 }: AgentCharacterPro
     if (prevStatusRef.current === agent.status) return;
     if (agent.status === 'working') {
       setBubbleState('thinking');
-    } else if (agent.status === 'idle' && prevStatusRef.current === 'working') {
+    } else if (agent.status !== 'working' && prevStatusRef.current === 'working') {
       setBubbleState('done');
       const t = setTimeout(() => setBubbleState('none'), 2000);
       prevStatusRef.current = agent.status;

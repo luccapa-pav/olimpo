@@ -37,7 +37,8 @@ export function Agent({ agent, position, rotation = [0, 0, 0], onClick, isSelect
     const dist = offsetRef.current.distanceTo(targetRef.current);
     const isWalking = dist > 0.12;
 
-    offsetRef.current.lerp(targetRef.current, delta * 1.8);
+    const safeDelta = Math.min(delta, 0.1);
+    offsetRef.current.lerp(targetRef.current, safeDelta * 1.8);
     innerRef.current.position.copy(offsetRef.current);
 
     if (isWalking) {
@@ -58,7 +59,7 @@ export function Agent({ agent, position, rotation = [0, 0, 0], onClick, isSelect
 
   return (
     <group position={position} rotation={rotation} onClick={onClick}>
-      <group ref={innerRef}>
+      <group ref={innerRef} frustumCulled={false}>
         <AgentCharacter
           agentId={agent.id}
           positionPhase={position[0]}

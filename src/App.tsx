@@ -21,12 +21,12 @@ export default function App() {
           performance={{ min: 0.5 }}
         >
           <color attach="background" args={['#0D0D0D']} />
-          <fog attach="fog" args={['#0D0D0D', 28, 80]} />
+          <fogExp2 attach="fog" args={['#0A0A12', 0.010]} />
 
           <Office />
 
           <EffectComposer>
-            <Bloom intensity={0.35} luminanceThreshold={0.6} luminanceSmoothing={0.9} mipmapBlur />
+            <Bloom intensity={0.35} luminanceThreshold={0.85} luminanceSmoothing={0.9} mipmapBlur />
             <Vignette eskil={false} offset={0.3} darkness={0.5} />
           </EffectComposer>
 
