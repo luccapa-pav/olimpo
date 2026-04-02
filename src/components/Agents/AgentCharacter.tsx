@@ -1,5 +1,6 @@
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
+import { Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { useAgentStore } from '../../stores/agentStore';
 
@@ -146,9 +147,53 @@ export function AgentCharacter({ agentId, positionPhase = 0 }: AgentCharacterPro
   const agent = useAgentStore((s) => s.agents.find((a) => a.id === agentId)!);
   const cfg = CFG[agentId] ?? DEFAULT_CFG;
 
-  const rootRef      = useRef<THREE.Group>(null);
-  const leftArmRef   = useRef<THREE.Group>(null);
-  const rightArmRef  = useRef<THREE.Group>(null);
+  const rootRef           = useRef<THREE.Group>(null);
+  const shouldersRef      = useRef<THREE.Group>(null);
+  const leftArmRef        = useRef<THREE.Group>(null);
+  const rightArmRef       = useRef<THREE.Group>(null);
+  const headRef           = useRef<THREE.Mesh>(null);
+  const statusDotRef      = useRef<THREE.Mesh>(null);
+  const bubbleMaterialRef = useRef<THREE.MeshStandardMaterial>(null);
+  const liftRef           = useRef(0);
+  const isTypingRef       = useRef(false);
+
+  // Chat bubble state: none → thinking (on working) → done (on idle after working) → none
+  const [bubbleState, setBubbleState] = useState<'none' | 'thinking' | 'done'>('none');
+  const prevStatusRef = useRef(agent.status);
+
+  useEffect(() => {
+    if (prevStatusRef.current === agent.status) return;
+    if (agent.status === 'working') {
+      setBubbleState('thinking');
+    } else if (agent.status === 'idle' && prevStatusRef.current === 'working') {
+      setBubbleState('done');
+      const t = setTimeout(() => setBubbleState('none'), 2000);
+      prevStatusRef.current = agent.status;
+      return () => clearTimeout(t);
+    }
+    prevStatusRef.current = agent.status;
+  }, [agent.status]);
+
+  // Typing burst timer — runs independently of chat status
+  useEffect(() => {
+    let cancelled = false;
+    const scheduleNext = () => {
+      if (cancelled) return;
+      setTimeout(() => {
+        if (cancelled) return;
+        isTypingRef.current = true;
+        const duration = 2000 + Math.random() * 2000;
+        setTimeout(() => {
+          if (cancelled) return;
+          isTypingRef.current = false;
+          scheduleNext();
+        }, duration);
+      }, 5000 + Math.random() * 7000);
+    };
+    // Stagger start per agent
+    const init = setTimeout(scheduleNext, positionPhase * 2000 + Math.random() * 4000);
+    return () => { cancelled = true; clearTimeout(init); };
+  }, [positionPhase]);
 
   // ── Measurements (y=0 = feet) ─────────────────────────────────────────────
   const LEGS_H     = 0.20;
@@ -172,19 +217,55 @@ export function AgentCharacter({ agentId, positionPhase = 0 }: AgentCharacterPro
     const isWorking = agent.status === 'working';
 
     // Breathing + subtle idle sway
+    const breathSin = Math.sin(t * 1.1 + positionPhase);
     if (rootRef.current) {
-      rootRef.current.scale.y = 1 + Math.sin(t * 1.1 + positionPhase) * 0.016;
+      rootRef.current.scale.y = 1 + breathSin * 0.016;
       rootRef.current.rotation.z = Math.sin(t * 0.7 + positionPhase) * 0.007;
     }
 
-    // Arms reach toward keyboard when working
+    // Shoulder rise in sync with breathing
+    if (shouldersRef.current) {
+      shouldersRef.current.position.y = breathSin * 0.009;
+    }
+
+    // Head subtle look-around
+    if (headRef.current) {
+      headRef.current.rotation.y = Math.sin(t * 0.8 + positionPhase) * 0.06;
+    }
+
+    // Arms reach toward keyboard when working; typing bursts add oscillation
     const targetX = isWorking ? -1.0 : 0.14;
     const spd = Math.min(1, delta * 3.5);
+    const typingOsc = isTypingRef.current
+      ? Math.sin(t * 14 + positionPhase) * (isWorking ? 0.10 : 0.055)
+      : 0;
     if (leftArmRef.current) {
-      leftArmRef.current.rotation.x = THREE.MathUtils.lerp(leftArmRef.current.rotation.x, targetX, spd);
+      leftArmRef.current.rotation.x = THREE.MathUtils.lerp(leftArmRef.current.rotation.x, targetX + typingOsc, spd);
     }
     if (rightArmRef.current) {
-      rightArmRef.current.rotation.x = THREE.MathUtils.lerp(rightArmRef.current.rotation.x, targetX, spd);
+      rightArmRef.current.rotation.x = THREE.MathUtils.lerp(rightArmRef.current.rotation.x, targetX - typingOsc, spd);
+    }
+
+    // Standing lift — sobe 0.28 unidades quando working
+    const targetLift = isWorking ? 0.28 : 0;
+    liftRef.current = THREE.MathUtils.lerp(liftRef.current, targetLift, delta * 4);
+    if (rootRef.current) {
+      rootRef.current.position.y = liftRef.current;
+    }
+
+    // Status dot pulse
+    if (statusDotRef.current) {
+      const mat = statusDotRef.current.material as THREE.MeshStandardMaterial;
+      mat.emissiveIntensity = isWorking
+        ? 1.0 + Math.sin(t * 4) * 0.8
+        : agent.status === 'meeting'
+        ? 1.0 + Math.sin(t * 2) * 0.4
+        : 1.5;
+    }
+
+    // Chat bubble opacity pulse when thinking
+    if (bubbleMaterialRef.current && bubbleState === 'thinking') {
+      bubbleMaterialRef.current.opacity = 0.55 + Math.sin(t * 3.5) * 0.25;
     }
 
     // Manter loop ativo para animações com frameloop="demand"
@@ -192,9 +273,9 @@ export function AgentCharacter({ agentId, positionPhase = 0 }: AgentCharacterPro
   });
 
   const statusColor =
-    agent.status === 'working'  ? '#00CC88'
+    agent.status === 'working'  ? '#0088FF'
     : agent.status === 'meeting' ? '#C9A84C'
-    : '#555555';
+    : '#00CC44';
 
   const HairComp = HAIR_MAP[agentId];
 
@@ -242,7 +323,7 @@ export function AgentCharacter({ agentId, positionPhase = 0 }: AgentCharacterPro
       </mesh>
 
       {/* ── HEAD ── */}
-      <mesh position={[0, HEAD_CY, 0]}>
+      <mesh ref={headRef} position={[0, HEAD_CY, 0]}>
         <sphereGeometry args={[HEAD_R, 16, 16]} />
         <meshStandardMaterial color={cfg.skin} roughness={0.55} />
       </mesh>
@@ -269,28 +350,31 @@ export function AgentCharacter({ agentId, positionPhase = 0 }: AgentCharacterPro
         <meshStandardMaterial color="#111111" />
       </mesh>
 
-      {/* ── LEFT ARM ── */}
-      <group ref={leftArmRef} position={[-0.148, SHOULDER_Y, 0]}>
-        <mesh position={[0, -0.11, 0]}>
-          <cylinderGeometry args={[0.033, 0.026, 0.22, 12]} />
-          <meshStandardMaterial color={cfg.shirt} emissive={cfg.shirt} emissiveIntensity={0.05} roughness={0.78} />
-        </mesh>
-        <mesh position={[0, -0.225, 0]}>
-          <sphereGeometry args={[0.030, 12, 12]} />
-          <meshStandardMaterial color={cfg.skin} roughness={0.62} />
-        </mesh>
-      </group>
+      {/* ── ARMS — wrapped in shoulders group for breathing rise ── */}
+      <group ref={shouldersRef}>
+        {/* ── LEFT ARM ── */}
+        <group ref={leftArmRef} position={[-0.148, SHOULDER_Y, 0]}>
+          <mesh position={[0, -0.11, 0]}>
+            <cylinderGeometry args={[0.033, 0.026, 0.22, 12]} />
+            <meshStandardMaterial color={cfg.shirt} emissive={cfg.shirt} emissiveIntensity={0.05} roughness={0.78} />
+          </mesh>
+          <mesh position={[0, -0.225, 0]}>
+            <sphereGeometry args={[0.030, 12, 12]} />
+            <meshStandardMaterial color={cfg.skin} roughness={0.62} />
+          </mesh>
+        </group>
 
-      {/* ── RIGHT ARM ── */}
-      <group ref={rightArmRef} position={[0.148, SHOULDER_Y, 0]}>
-        <mesh position={[0, -0.11, 0]}>
-          <cylinderGeometry args={[0.033, 0.026, 0.22, 12]} />
-          <meshStandardMaterial color={cfg.shirt} emissive={cfg.shirt} emissiveIntensity={0.05} roughness={0.78} />
-        </mesh>
-        <mesh position={[0, -0.225, 0]}>
-          <sphereGeometry args={[0.030, 12, 12]} />
-          <meshStandardMaterial color={cfg.skin} roughness={0.62} />
-        </mesh>
+        {/* ── RIGHT ARM ── */}
+        <group ref={rightArmRef} position={[0.148, SHOULDER_Y, 0]}>
+          <mesh position={[0, -0.11, 0]}>
+            <cylinderGeometry args={[0.033, 0.026, 0.22, 12]} />
+            <meshStandardMaterial color={cfg.shirt} emissive={cfg.shirt} emissiveIntensity={0.05} roughness={0.78} />
+          </mesh>
+          <mesh position={[0, -0.225, 0]}>
+            <sphereGeometry args={[0.030, 12, 12]} />
+            <meshStandardMaterial color={cfg.skin} roughness={0.62} />
+          </mesh>
+        </group>
       </group>
 
       {/* ══ ACCESSORIES ══ */}
@@ -393,8 +477,35 @@ export function AgentCharacter({ agentId, positionPhase = 0 }: AgentCharacterPro
         </group>
       )}
 
+      {/* ── CHAT BUBBLE ── */}
+      {bubbleState !== 'none' && (
+        <group position={[-0.08, HEAD_CY + HEAD_R + 0.32, 0.05]}>
+          <mesh>
+            <sphereGeometry args={[0.13, 10, 10]} />
+            <meshStandardMaterial
+              ref={bubbleMaterialRef}
+              color={bubbleState === 'done' ? '#00CC66' : '#FFFFFF'}
+              emissive={bubbleState === 'done' ? '#00CC66' : '#FFFFFF'}
+              emissiveIntensity={bubbleState === 'done' ? 0.8 : 0.4}
+              transparent
+              opacity={0.75}
+            />
+          </mesh>
+          <Html center distanceFactor={4} style={{ pointerEvents: 'none' }}>
+            <span style={{
+              fontSize: '11px',
+              fontWeight: 'bold',
+              color: bubbleState === 'done' ? '#00CC66' : '#333',
+              userSelect: 'none',
+            }}>
+              {bubbleState === 'done' ? '✓' : '···'}
+            </span>
+          </Html>
+        </group>
+      )}
+
       {/* ── STATUS indicator dot ── */}
-      <mesh position={[0.19, HEAD_CY + HEAD_R + 0.11, 0]}>
+      <mesh ref={statusDotRef} position={[0.19, HEAD_CY + HEAD_R + 0.11, 0]}>
         <sphereGeometry args={[0.040, 14, 14]} />
         <meshStandardMaterial color={statusColor} emissive={statusColor} emissiveIntensity={1.5} />
       </mesh>

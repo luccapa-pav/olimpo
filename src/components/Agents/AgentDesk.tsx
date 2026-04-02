@@ -31,6 +31,7 @@ export function AgentDesk({ agent, position, onAgentClick, isSelected }: AgentDe
         position={[x, y + 1.15, z - 0.22]}
         active={agent.status !== 'idle'}
         accentColor={agent.accentColor}
+        agentId={agent.id}
       />
       {/* Monitor esquerdo — arco à esquerda */}
       <group position={[x - 0.80, y + 1.12, z - 0.14]} rotation={[0, Math.PI / 6, 0]} scale={0.78}>
@@ -38,6 +39,7 @@ export function AgentDesk({ agent, position, onAgentClick, isSelected }: AgentDe
           position={[0, 0, 0]}
           active={agent.status !== 'idle'}
           accentColor={agent.accentColor}
+          agentId={agent.id}
         />
       </group>
       {/* Monitor direito — arco à direita */}
@@ -46,6 +48,7 @@ export function AgentDesk({ agent, position, onAgentClick, isSelected }: AgentDe
           position={[0, 0, 0]}
           active={agent.status !== 'idle'}
           accentColor={agent.accentColor}
+          agentId={agent.id}
         />
       </group>
       {/* Mousepad grande com borda RGB */}

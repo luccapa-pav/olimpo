@@ -1,36 +1,46 @@
 import { Chair } from '../Furniture/Chair';
 
-// Sala privada 2.5×2.5 — posicionada no canto superior esquerdo (atrás do CEO)
+// Sala privada — posicionada no canto nordeste
 // Recebe `position` como centro da sala
 
 const WALL_H = 3.5;
-const W = 3.5;   // largura total (40% maior)
-const D = 3.5;   // profundidade total (40% maior)
+const D = 5.0;   // face norte z_centro-2.5=-12.0, face sul z_centro+2.5=-7.0
 
 interface PrivateRoomProps {
   position: [number, number, number];
+  width?: number;   // largura da sala (default 3.5). Sala 2 usa 3.4 para encostar na parede leste.
   occupied?: boolean;
   roomName?: string;
 }
 
-function RoundTable({ position }: { position: [number, number, number] }) {
+function ExecutiveDesk({ position }: { position: [number, number, number] }) {
   return (
     <group position={position}>
+      {/* Tampa da mesa */}
+      <mesh position={[0, 0.76, 0]}>
+        <boxGeometry args={[1.8, 0.05, 0.9]} />
+        <meshStandardMaterial color="#1C1208" roughness={0.4} metalness={0.1} />
+      </mesh>
+      {/* Borda metálica */}
       <mesh position={[0, 0.74, 0]}>
-        <cylinderGeometry args={[0.48, 0.48, 0.06, 24]} />
-        <meshStandardMaterial color="#303030" roughness={0.5} metalness={0.2} />
+        <boxGeometry args={[1.82, 0.03, 0.92]} />
+        <meshStandardMaterial color="#444444" metalness={0.8} roughness={0.2} />
       </mesh>
-      <mesh position={[0, 0.72, 0]}>
-        <torusGeometry args={[0.48, 0.018, 8, 24]} />
-        <meshStandardMaterial color="#555555" metalness={0.8} roughness={0.2} />
+      {/* 2 pés laterais */}
+      {([-0.8, 0.8] as number[]).map((x, i) => (
+        <mesh key={i} position={[x, 0.37, 0]}>
+          <boxGeometry args={[0.06, 0.74, 0.82]} />
+          <meshStandardMaterial color="#222222" metalness={0.6} roughness={0.4} />
+        </mesh>
+      ))}
+      {/* Monitor */}
+      <mesh position={[0.3, 1.13, -0.25]}>
+        <boxGeometry args={[0.65, 0.38, 0.02]} />
+        <meshStandardMaterial color="#111111" metalness={0.7} roughness={0.3} />
       </mesh>
-      <mesh position={[0, 0.35, 0]}>
-        <cylinderGeometry args={[0.04, 0.06, 0.7, 12]} />
-        <meshStandardMaterial color="#3A3A3A" metalness={0.6} roughness={0.4} />
-      </mesh>
-      <mesh position={[0, 0.02, 0]}>
-        <cylinderGeometry args={[0.26, 0.26, 0.04, 12]} />
-        <meshStandardMaterial color="#2A2A2A" metalness={0.5} roughness={0.5} />
+      <mesh position={[0.3, 0.92, -0.22]}>
+        <boxGeometry args={[0.04, 0.3, 0.04]} />
+        <meshStandardMaterial color="#333333" metalness={0.5} roughness={0.5} />
       </mesh>
     </group>
   );
@@ -50,9 +60,9 @@ function FrostedGlass({
       <boxGeometry args={args} />
       <meshPhysicalMaterial
         color="#e6f2ff"
-        transmission={0.95}
-        roughness={0.05}
-        thickness={0.2}
+        transmission={0.85}
+        roughness={0.08}
+        thickness={0.25}
         metalness={0}
         ior={1.5}
       />
@@ -88,14 +98,16 @@ function DoorIndicator({
   );
 }
 
-export function PrivateRoom({ position, occupied = false, roomName: _roomName = 'Sala' }: PrivateRoomProps) {
+export function PrivateRoom({ position, width = 3.5, occupied = false, roomName: _roomName = 'Sala' }: PrivateRoomProps) {
+  const W = width;
   const [px, py, pz] = position;
 
-  // 3 cadeiras ao redor da mesa redonda
+  // 4 cadeiras: 1 executivo + 2 visitantes + 1 lateral
   const chairPositions: { pos: [number, number, number]; rot: [number, number, number] }[] = [
-    { pos: [0, 0, 0.98],     rot: [0, Math.PI, 0] },
-    { pos: [-0.87, 0, -0.67], rot: [0, 0.55, 0] },
-    { pos: [0.87, 0, -0.67],  rot: [0, -0.55, 0] },
+    { pos: [0, 0, 0.6],        rot: [0, Math.PI, 0] },
+    { pos: [-0.55, 0, -1.2],   rot: [0, 0.2, 0] },
+    { pos: [0.55, 0, -1.2],    rot: [0, -0.2, 0] },
+    { pos: [1.1, 0, -0.3],     rot: [0, -Math.PI / 2, 0] },
   ];
 
   return (
@@ -124,8 +136,8 @@ export function PrivateRoom({ position, occupied = false, roomName: _roomName = 
       {/* Vidro fosco — face oeste */}
       <FrostedGlass position={[-W / 2, WALL_H / 2, 0]} args={[0.06, WALL_H, D]} />
 
-      {/* Mesa redonda central */}
-      <RoundTable position={[0, 0, 0]} />
+      {/* Mesa executiva */}
+      <ExecutiveDesk position={[0, 0, -0.5]} />
 
       {/* 3 cadeiras ao redor */}
       {chairPositions.map(({ pos, rot }, i) => (
@@ -162,6 +174,19 @@ export function PrivateRoom({ position, occupied = false, roomName: _roomName = 
             metalness={0.4}
           />
         </mesh>
+      </group>
+
+      {/* Floor lamp no canto traseiro */}
+      <group position={[-1.4, 0, -1.7]}>
+        <mesh position={[0, 0.9, 0]}>
+          <cylinderGeometry args={[0.01, 0.01, 1.8, 6]} />
+          <meshStandardMaterial color="#333333" metalness={0.8} roughness={0.3} />
+        </mesh>
+        <mesh position={[0, 1.85, 0]}>
+          <coneGeometry args={[0.18, 0.22, 10, 1, true]} />
+          <meshStandardMaterial color="#888888" metalness={0.5} roughness={0.5} side={2} />
+        </mesh>
+        <pointLight position={[0, 1.7, 0]} intensity={0.5} color="#FFF5D6" distance={3} decay={2} />
       </group>
 
       {/* Indicador de status ao lado da porta */}

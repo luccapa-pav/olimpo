@@ -1,4 +1,8 @@
 // Estrutura física: chão, paredes externas e LEDs de contorno
+import { useRef } from 'react';
+import { useFrame } from '@react-three/fiber';
+import * as THREE from 'three';
+import { useAgentStore } from '../../stores/agentStore';
 
 const WALL_H = 3.5;
 
@@ -7,6 +11,43 @@ function WallMaterial() {
 }
 
 export function Floor() {
+  const matNRef = useRef<THREE.MeshStandardMaterial>(null);
+  const matSRef = useRef<THREE.MeshStandardMaterial>(null);
+  const matERef = useRef<THREE.MeshStandardMaterial>(null);
+  const matWRef = useRef<THREE.MeshStandardMaterial>(null);
+
+  const anyMeeting   = useAgentStore(s => s.agents.some(a => a.status === 'meeting'));
+  const atlasWorking = useAgentStore(s => s.agents.find(a => a.id === 'atlas')?.status === 'working');
+  const briefingStartRef = useRef<number | null>(null);
+
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    let intensity = 0.8;
+
+    // Atlas briefing: 3 pulses over 2s when it starts working
+    if (atlasWorking) {
+      if (briefingStartRef.current === null) briefingStartRef.current = t;
+      const elapsed = t - briefingStartRef.current;
+      if (elapsed < 2.0) {
+        const pulse = Math.sin(elapsed * Math.PI * 3);
+        intensity = 0.8 + Math.max(0, pulse) * 0.5;
+      }
+    } else {
+      briefingStartRef.current = null;
+    }
+
+    // Meeting: gentle ambient pulse on top
+    if (anyMeeting) {
+      intensity = Math.max(intensity, 0.8 + Math.sin(t * 1.8) * 0.18);
+    }
+
+    [matNRef, matSRef, matERef, matWRef].forEach(ref => {
+      if (ref.current) ref.current.emissiveIntensity = intensity;
+    });
+
+    state.invalidate();
+  });
+
   return (
     <>
       {/* Chão principal — concreto polido escuro */}
@@ -42,8 +83,8 @@ export function Floor() {
       </mesh>
 
       {/* Overlay piso Sala Privada 1 — deep navy */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[5.75, 0.01, -10.25]}>
-        <planeGeometry args={[3.38, 3.38]} />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[1.975, 0.01, -9.5]}>
+        <planeGeometry args={[5.83, 4.88]} />
         <meshStandardMaterial
           color="#080E18"
           roughness={0.85}
@@ -55,8 +96,8 @@ export function Floor() {
       </mesh>
 
       {/* Overlay piso Sala Privada 2 — deep navy */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[9.0, 0.01, -10.25]}>
-        <planeGeometry args={[3.38, 3.38]} />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[7.925, 0.01, -9.5]}>
+        <planeGeometry args={[5.83, 4.88]} />
         <meshStandardMaterial
           color="#080E18"
           roughness={0.85}
@@ -72,25 +113,25 @@ export function Floor() {
       {/* Norte */}
       <mesh rotation={[Math.PI / 2, 0, 0]} position={[-1.5, 3.46, -11.85]}>
         <planeGeometry args={[26, 0.08]} />
-        <meshStandardMaterial color="#FFF8E7" emissive="#FFF8E7" emissiveIntensity={0.8} />
+        <meshStandardMaterial ref={matNRef} color="#FFF8E7" emissive="#FFF8E7" emissiveIntensity={0.8} />
       </mesh>
 
       {/* Oeste */}
       <mesh rotation={[Math.PI / 2, 0, Math.PI / 2]} position={[-13.85, 3.46, -0.5]}>
         <planeGeometry args={[24, 0.08]} />
-        <meshStandardMaterial color="#FFF8E7" emissive="#FFF8E7" emissiveIntensity={0.8} />
+        <meshStandardMaterial ref={matWRef} color="#FFF8E7" emissive="#FFF8E7" emissiveIntensity={0.8} />
       </mesh>
 
       {/* Leste */}
       <mesh rotation={[Math.PI / 2, 0, Math.PI / 2]} position={[10.85, 3.46, -0.5]}>
         <planeGeometry args={[24, 0.08]} />
-        <meshStandardMaterial color="#FFF8E7" emissive="#FFF8E7" emissiveIntensity={0.8} />
+        <meshStandardMaterial ref={matERef} color="#FFF8E7" emissive="#FFF8E7" emissiveIntensity={0.8} />
       </mesh>
 
       {/* Sul */}
       <mesh rotation={[Math.PI / 2, 0, 0]} position={[-1.5, 3.46, 11.85]}>
         <planeGeometry args={[26, 0.08]} />
-        <meshStandardMaterial color="#FFF8E7" emissive="#FFF8E7" emissiveIntensity={0.8} />
+        <meshStandardMaterial ref={matSRef} color="#FFF8E7" emissive="#FFF8E7" emissiveIntensity={0.8} />
       </mesh>
     </>
   );

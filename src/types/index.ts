@@ -9,6 +9,7 @@ export interface AgentConfig {
   mythology: string;
   role: AgentRole;
   accentColor: string;
+  tagColor?: string;
   defaultRoom: AgentRoom;
   deskObject: string;
   systemPrompt: string;

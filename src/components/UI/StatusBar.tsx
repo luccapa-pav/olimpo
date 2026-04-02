@@ -1,9 +1,18 @@
+import { useState, useEffect } from 'react';
 import { useAgentStore } from '../../stores/agentStore';
 import { useUIStore } from '../../stores/uiStore';
 
 export function StatusBar() {
   const agents = useAgentStore((s) => s.agents);
   const { selectAgent, selectedAgentId } = useUIStore();
+  const [googleAuthed, setGoogleAuthed] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/auth/status')
+      .then(r => r.json())
+      .then(d => setGoogleAuthed(d.authed))
+      .catch(() => {});
+  }, []);
 
   const working = agents.filter((a) => a.status === 'working').length;
   const idle = agents.filter((a) => a.status === 'idle').length;
@@ -82,6 +91,26 @@ export function StatusBar() {
       <div style={{ color: '#333', fontSize: '10px' }}>
         Clique num agente para abrir o chat
       </div>
+
+      <div style={{ width: '1px', height: '20px', background: '#222' }} />
+
+      {/* Google auth indicator */}
+      <a
+        href={googleAuthed ? undefined : '/api/auth/login'}
+        style={{
+          padding: '3px 9px',
+          borderRadius: '4px',
+          fontSize: '10px',
+          color: googleAuthed ? '#00CC44' : '#555',
+          border: `1px solid ${googleAuthed ? '#00CC4430' : '#2A2A2A'}`,
+          textDecoration: 'none',
+          cursor: googleAuthed ? 'default' : 'pointer',
+          whiteSpace: 'nowrap',
+          letterSpacing: '0.3px',
+        }}
+      >
+        {googleAuthed ? '● Google' : '○ Conectar Google'}
+      </a>
     </div>
   );
 }

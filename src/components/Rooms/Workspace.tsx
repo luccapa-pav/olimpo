@@ -1,5 +1,5 @@
 import { AgentDesk } from '../Agents/AgentDesk';
-import { Plant } from '../Furniture/Plant';
+import { LargePot } from '../Furniture/Plant';
 import type { AgentState } from '../../types';
 
 interface WorkspaceProps {
@@ -43,9 +43,9 @@ export function Workspace({ agents, selectedAgentId, onAgentClick }: WorkspacePr
         );
       })}
 
-      {/* Plantas nos cantos */}
-      <Plant position={[originX - 1.3, 0, originZ]} />
-      <Plant position={[originX + MAX_PER_ROW * DESK_SPACING_X + 0.5, 0, originZ]} scale={0.9} />
+      {/* Vasos nos cantos */}
+      <LargePot position={[originX - 1.3, 0, originZ]} />
+      <LargePot position={[originX + MAX_PER_ROW * DESK_SPACING_X + 0.5, 0, originZ]} />
     </group>
   );
 }

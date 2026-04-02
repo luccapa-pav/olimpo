@@ -9,6 +9,10 @@ function cleanText(text: string): string {
     .replace(/<(tool_call|tool_response|tool_use|tool_result)[\s\S]*?<\/(tool_call|tool_response|tool_use|tool_result)>/gi, '')
     .replace(/\[(tool_call|tool_response|tool_use|tool_result)\][\s\S]*?\[\/(tool_call|tool_response|tool_use|tool_result)\]/gi, '')
     .replace(/\[tool_(?:call|response|use|result)[^\]]*\]/gi, '')
+    // strip markdown formatting
+    .replace(/^---+\s*$/gm, '')
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/^#{1,3}\s*/gm, '')
     .replace(/\n{3,}/g, '\n\n')
     .trim();
 }
@@ -68,6 +72,8 @@ export function ChatPanel() {
     setAgentStatus(agent.id, 'working');
     setAgentTask(agent.id, currentInput.slice(0, 40));
 
+    let hasDelegation = false;
+
     try {
       const allMessages = [...(chat?.messages ?? []), userMessage];
       const response = await sendChatMessage(agent.id, agent.systemPrompt, allMessages);
@@ -76,6 +82,28 @@ export function ChatPanel() {
         content: response,
         timestamp: Date.now(),
       });
+
+      // Detectar delegações na resposta do Atlas e animar agentes envolvidos
+      if (agent.id === 'atlas') {
+        const DELEGATION_MARKERS: Record<string, string> = {
+          hermes:     '🔍',
+          astraea:    '⚖️',
+          hefesto:    '🔧',
+          prometheus: '🔥',
+          iris:       '🌈',
+        };
+        const delegated = Object.entries(DELEGATION_MARKERS)
+          .filter(([, emoji]) => response.includes(emoji))
+          .map(([id]) => id);
+        if (delegated.length > 0) {
+          hasDelegation = true;
+          const involved = ['atlas', ...delegated];
+          involved.forEach(id => setAgentStatus(id, 'meeting'));
+          setTimeout(() => {
+            involved.forEach(id => setAgentStatus(id, 'idle'));
+          }, 5000);
+        }
+      }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Erro desconhecido';
       addMessage(agent.id, {
@@ -85,7 +113,7 @@ export function ChatPanel() {
       });
     } finally {
       setChatLoading(agent.id, false);
-      setAgentStatus(agent.id, 'idle');
+      if (!hasDelegation) setAgentStatus(agent.id, 'idle');
       setAgentTask(agent.id, null);
     }
   }

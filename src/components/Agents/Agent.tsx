@@ -1,8 +1,10 @@
-import { useMemo } from 'react';
+import { useRef } from 'react';
+import { Html } from '@react-three/drei';
+import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { Billboard } from '@react-three/drei';
 import { AgentCharacter } from './AgentCharacter';
 import type { AgentState } from '../../types';
+import { MEETING_SEATS } from '../../config/positions';
 
 interface AgentProps {
   agent: AgentState;
@@ -13,77 +15,85 @@ interface AgentProps {
 }
 
 export function Agent({ agent, position, rotation = [0, 0, 0], onClick, isSelected }: AgentProps) {
-  const labelTexture = useMemo(() => {
-    const W = 512, H = 128;
-    const canvas = document.createElement('canvas');
-    canvas.width = W; canvas.height = H;
-    const ctx = canvas.getContext('2d')!;
+  const tagC = agent.tagColor ?? agent.accentColor;
+  const innerRef   = useRef<THREE.Group>(null);
+  const offsetRef  = useRef(new THREE.Vector3(0, 0, 0));
+  const targetRef  = useRef(new THREE.Vector3(0, 0, 0));
+  const walkTimeRef = useRef(0);
 
-    ctx.clearRect(0, 0, W, H);
+  useFrame((state, delta) => {
+    if (!innerRef.current) return;
+    const seat = agent.status === 'meeting' ? MEETING_SEATS[agent.id] : null;
+    if (seat) {
+      targetRef.current.set(
+        seat[0] - position[0],
+        seat[1] - position[1],
+        seat[2] - position[2],
+      );
+    } else {
+      targetRef.current.set(0, 0, 0);
+    }
 
-    // Outer glow
-    ctx.fillStyle = agent.accentColor;
-    ctx.globalAlpha = 0.28;
-    if ((ctx as any).roundRect) (ctx as any).roundRect(2, 2, W - 4, H - 4, 14);
-    else ctx.rect(2, 2, W - 4, H - 4);
-    ctx.fill();
-    ctx.globalAlpha = 1;
+    const dist = offsetRef.current.distanceTo(targetRef.current);
+    const isWalking = dist > 0.12;
 
-    // Dark background
-    ctx.fillStyle = '#000000';
-    ctx.globalAlpha = 1.0;
-    if ((ctx as any).roundRect) (ctx as any).roundRect(8, 8, W - 16, H - 16, 8);
-    else ctx.rect(8, 8, W - 16, H - 16);
-    ctx.fill();
-    ctx.globalAlpha = 1;
+    offsetRef.current.lerp(targetRef.current, delta * 1.8);
+    innerRef.current.position.copy(offsetRef.current);
 
-    // Top + bottom accent lines
-    ctx.strokeStyle = agent.accentColor;
-    ctx.lineWidth = 2.5;
-    ctx.globalAlpha = 0.75;
-    ctx.beginPath();
-    ctx.moveTo(22, 11); ctx.lineTo(W - 22, 11);
-    ctx.moveTo(22, H - 11); ctx.lineTo(W - 22, H - 11);
-    ctx.stroke();
-    ctx.globalAlpha = 1;
+    if (isWalking) {
+      walkTimeRef.current += delta;
+      const wt = walkTimeRef.current;
+      // Body sway left-right
+      innerRef.current.rotation.z = Math.sin(wt * 8) * 0.04;
+      // Vertical bounce (feet lifting)
+      innerRef.current.position.y += Math.abs(Math.sin(wt * 8)) * 0.015;
+    } else {
+      walkTimeRef.current = 0;
+      // Ease sway back to zero when stationary
+      innerRef.current.rotation.z = THREE.MathUtils.lerp(innerRef.current.rotation.z, 0, delta * 6);
+    }
 
-    // Name
-    ctx.font = 'bold 48px monospace';
-    ctx.fillStyle = '#FFFFFF';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(agent.name.toUpperCase(), W / 2, H * 0.38);
-
-    // Status
-    ctx.font = '26px monospace';
-    ctx.globalAlpha = 0.75;
-    ctx.fillStyle = agent.accentColor;
-    ctx.fillText(agent.status.toUpperCase(), W / 2, H * 0.72);
-    ctx.globalAlpha = 1;
-
-    return new THREE.CanvasTexture(canvas);
-  }, [agent.name, agent.accentColor, agent.status]);
+    state.invalidate();
+  });
 
   return (
     <group position={position} rotation={rotation} onClick={onClick}>
-      <AgentCharacter
-        agentId={agent.id}
-        positionPhase={position[0]}
-        isSelected={isSelected}
-      />
+      <group ref={innerRef}>
+        <AgentCharacter
+          agentId={agent.id}
+          positionPhase={position[0]}
+          isSelected={isSelected}
+        />
+      </group>
 
-      {/* Holographic floating name label — single CanvasTexture mesh, zero Z-fighting */}
-      <Billboard position={[0, 1.95, 0]} follow={true} scale={[3.6, 1.1, 1]}>
-        <mesh renderOrder={10}>
-          <planeGeometry args={[0.82, 0.26]} />
-          <meshBasicMaterial
-            map={labelTexture}
-            transparent
-            depthWrite={false}
-            depthTest={false}
-          />
-        </mesh>
-      </Billboard>
+      {/* Name label — HTML screen-space, zero distortion */}
+      <Html position={[0, 2.35, 0]} center zIndexRange={[100, 0]} style={{ pointerEvents: 'none' }}>
+        <div style={{
+          background: 'rgba(15,15,15,0.95)',
+          color: '#FFF',
+          padding: '5px 13px 4px',
+          borderRadius: '4px',
+          fontFamily: "'Inter', system-ui, sans-serif",
+          fontSize: '13px',
+          fontWeight: 'bold',
+          borderBottom: `3px solid ${tagC}`,
+          textAlign: 'center',
+          whiteSpace: 'nowrap',
+          letterSpacing: '0.5px',
+          userSelect: 'none',
+        }}>
+          {agent.name.toUpperCase()}
+          <div style={{
+            fontSize: '9px',
+            color: tagC,
+            opacity: 0.85,
+            marginTop: '1px',
+            letterSpacing: '1px',
+          }}>
+            {agent.status.toUpperCase()}
+          </div>
+        </div>
+      </Html>
 
       {/* Anel de seleção no chão */}
       {isSelected && (
